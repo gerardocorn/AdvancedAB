@@ -1,0 +1,176 @@
+---
+title: "ASCI 431/831 Advanced Animal Breeding"
+author: "Review of allele and genotypic frequencies"
+date: "2/12/2018"
+output: html_document
+header-includes:
+  - \usepackage{color}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### <span style="color:darkblue">Read Santa Ines sheep data</span> 
+
+```{r}
+W<-read.table('/Users/gerardo.mamani/Dropbox/2Santa_ines/inbreeding/grm/W.txt', header = F)
+#W <- read.table(file = file.choose(), header = TRUE, stringsAsFactors = FALSE)
+```
+
+```{r, comment=NA}
+W[1, 1]       # 1st row and 1st column 
+head(W[, 1]) 
+```
+```{r, comment=NA}
+W[1:5, 1:5]
+```
+
+We then drop the first column of data frame, which is the animal IDs. The - sign indicates dropping variables. So, -1 means dropping the first column.
+```{r, comment=NA}
+W <- W[, -1]
+```
+
+Next, we will convert W into a matrix from a data frame. In R, matrices are more memory efficient and convenient than the other data types to do linear algebra.
+
+```{r, comment=NA}
+W <- as.matrix(W)
+```
+
+What is the dimension of W?
+```{r, comment=NA}
+dim(W)
+```
+
+### <span style="color:darkblue">Allele frequency </span> 
+```{r, comment=NA}
+table(W[,1])
+```
+
+```{r, comment=NA}
+nAA <- table(W[, 1])[3]
+nAa <- table(W[, 1])[2]
+naa <- table(W[, 1])[1]
+```
+
+#### <span style="color:darkblue">Exercise 1 </span> 
+
+Use the variables nAA, nAa, and naa defined above and compute the allele frequencies of A and a in the first SNP.
+
+```{r, comment=NA}
+fA<-(2*nAA+nAa)/(2*(nrow(W)) )
+fA
+```
+```{r, comment=NA}
+fa<-(2*naa+nAa)/(2*(nrow(W)) )
+fa
+```
+
+### <span style="color:darkblue">Genotypic frequency </span> 
+
+#### <span style="color:darkblue">Exercise 2 </span> 
+
+What are the genotypic frequencies of AA, Aa, and aa in the first SNP?
+
+```{r, comment=NA}
+P<-nAA/nrow(W) ;P
+H<-nAa/nrow(W) ;H
+Q<-naa/nrow(W) ;Q
+```
+
+### <span style="color:darkblue">Another approach for obtaining allele frequency</span> 
+
+#### <span style="color:darkblue">Exercise 3 </span> 
+
+Use the variables P, H, and Q defined above and compute the allele frequencies of A and a in the first SNP. 
+
+
+```{r, message=FALSE, warning=FALSE, comment=NA}
+p <- (2*P + 1*H)/(2*(P + H + Q))
+p
+q <- (2*Q + 1*H)/(2*(P + H + Q))
+q
+```
+
+#### <span style="color:darkblue">Exercise 4 </span> 
+
+```{r}
+nAA <- table(W[, 2])[3]
+nAa <- table(W[, 2])[2]
+naa <- table(W[, 2])[1]
+```
+```{r}
+p <- (2 * nAA + 1 * nAa)/(2 * (nAA + nAa + naa))
+p
+q <- 1 - p
+q
+```
+
+### <span style="color:darkblue">Compute allele frequencies for all SNPs </span> 
+
+Recall that allele frequency of A is given by 
+
+```{r, comment=NA}
+sum(W[,1])  # sum of A allele in the first SNP
+sum(W[,2])  # sum of A allele in the second SNP
+```
+
+```{r, results='hide'}
+colSums(W)
+```
+Note that colSums(W) gives the numerator of the above equation. We then divide this number by 2×total no. of individuals. The function nrows returns the number of rows.
+
+```{r, comment=NA}
+p <- colSums(W)/(2 * nrow(W))
+```
+The variable p is a vector and it contains the allele frequencies of reference allele for 12,703 SNPs.
+
+#### <span style="color:darkblue">Exercise 5 </span>
+
+What is the allele frequency of reference allele in the 300th SNP?
+
+```{r}
+p300<-sum(W[,300])/(2*nrow(W))
+p300
+```
+
+#### <span style="color:darkblue">Exercise 6 </span>
+
+What is the mean of reference allele frequencies in this population?
+
+```{r, comment=NA}
+mean(p, na.rm = T)
+```
+### <span style="color:darkblue">Minor allele frequency </span> 
+
+```{r}
+maf<-ifelse(p>0.5, 1-p,p)
+```
+
+#### <span style="color:darkblue">Exercise 7 </span> 
+
+```{r, comment=NA}
+maf[300]
+```
+
+#### <span style="color:darkblue">Exercise 8 </span> 
+
+What is the minor allele frequency of reference allele in the 300th SNP
+
+```{r}
+mean(maf, na.rm=TRUE)
+
+```
+
+### <span style="color:darkblue">Visualization </span> 
+
+```{r}
+plot(maf[1:500], pch=20)
+
+```
+
+### <span style='color:darkblue'>Save R objects </span>
+
+```{r}
+#save(W,file="W.Rda")
+```
